@@ -6,6 +6,9 @@ Este documento te proporciona una guía completa para organizar y ejecutar el pr
 
 Para organizar adecuadamente los archivos y directorios necesarios, sigue esta estructura:
 
+![alt text](image.png)
+
+
 /workspace
 │
 ├── .env

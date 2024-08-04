@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import numpy as np
 import pandas as pd
 import nbformat
@@ -11,7 +13,9 @@ from dotenv import load_dotenv
 from pprint import pprint
 from openai import OpenAI
 from fpdf import FPDF
+from tqdm import tqdm
 import sys
+from joblib import Parallel, delayed
 import argparse
 
 
@@ -66,21 +70,19 @@ def extrae_criterios(prompt_file):
     
     return criteria
 
-
-def preprocesa_notebook(file_path):
+def preprocesa_examen(file_path):
     """
-    Procesa un notebook Jupyter para extraer el contexto del examen, los enunciados de los ejercicios, el código de solución para cada ejercicio y el nombre del alumno.
+    Procesa un notebook Jupyter para extraer el contexto del examen y los enunciados de los ejercicios.
     
     Parameters:
         file_path (str): Ruta del archivo del notebook de solución.
         
     Returns:
-        dict: Un diccionario con las claves 'contexto_examen', 'enunciados_ejercicios', 'codigo_ejercicios', y 'alumno'.
+        dict: Un diccionario con las claves 'contexto_examen' y 'enunciados_ejercicios'.
     """
     # Inicialización de variables
     contexto_examen = ""
     enunciados_ejercicios = []
-    codigo_ejercicios = []
 
     # Leer el notebook
     with open(file_path, 'r', encoding='utf-8') as f:
@@ -98,8 +100,33 @@ def preprocesa_notebook(file_path):
                 elif cell_content.startswith('Ejercicio'):
                     # Añadir el contenido de la celda a la lista enunciados_ejercicios
                     enunciados_ejercicios.append(cell_content)
-            
-            elif cell.cell_type == 'code':
+    
+    return {
+        'contexto_examen': contexto_examen,
+        'enunciados_ejercicios': enunciados_ejercicios
+    }
+
+
+def preprocesa_respuesta_alumno(file_path):
+    """
+    Procesa un notebook Jupyter para extraer el código de solución para cada ejercicio y el nombre del alumno.
+    
+    Parameters:
+        file_path (str): Ruta del archivo del notebook de solución.
+        
+    Returns:
+        dict: Un diccionario con las claves 'codigo_ejercicios' y 'alumno'.
+    """
+    # Inicialización de variables
+    codigo_ejercicios = []
+
+    # Leer el notebook
+    with open(file_path, 'r', encoding='utf-8') as f:
+        notebook_tmp = nbformat.read(f, as_version=4)
+        
+        # Procesar las celdas del notebook
+        for cell in notebook_tmp.cells:
+            if cell.cell_type == 'code':
                 # Añadir el código de cada celda de código a codigo_ejercicios
                 codigo_ejercicios.append(cell['source'])
 
@@ -112,13 +139,13 @@ def preprocesa_notebook(file_path):
     alumno, _ = os.path.splitext(nombre_archivo)  # Separar el nombre y la extensión
     
     return {
-        'contexto_examen': contexto_examen,
-        'enunciados_ejercicios': enunciados_ejercicios,
         'codigo_ejercicios': codigo_ejercicios,
         'alumno': alumno
     }
     
-    
+
+
+####### ESTA FUNCION NO SE UTILIZA EN ESTE SCRIPT, PERO SE DEJA COMO REFERENCIA ########    
 def evaluar_ejecucion_ejercicios(datos_ejercicios):
     """
     Evalúa la ejecución de los ejercicios en el diccionario de datos extraídos del notebook.
@@ -156,9 +183,8 @@ def evaluar_ejecucion_ejercicios(datos_ejercicios):
         'resultados': resultados
     }
     
-    return datos_ejercicios_con_resultados
-
-
+    return datos_ejercicios_con_resultados    
+    
 def evaluar_con_chatgpt(codigo, descripcion, prompt_template):
     """
     Evalúa el código de un ejercicio utilizando el modelo GPT-4 de OpenAI.
@@ -187,27 +213,13 @@ def evaluar_con_chatgpt(codigo, descripcion, prompt_template):
     evaluacion = response.choices[0].message.content
     return evaluacion
 
-def extract_criteria(prompt):
-    """
-    Extrae los nombres de los criterios de un prompt dado.
-
-    Parámetros:
-    prompt (str): Cadena de texto que contiene el prompt con los criterios delimitados por '@@'.
-
-    Retorna:
-    list: Una lista de cadenas, donde cada cadena es el nombre de un criterio extraído del prompt.
-    """
-    # Buscar los nombres de los criterios
-    criteria_pattern = re.compile(r'@@(.*?)@@')
-    criteria = criteria_pattern.findall(prompt)
-    return criteria
-
-def evaluar_ejercicios(diccionario_resultados, prompt_file='prompt.txt'):
+def evaluar_ejercicios(diccionario_enunciados, diccionario_resultados, prompt_file='prompt.txt'):
     """
     Evalúa los ejercicios utilizando GPT-4 y devuelve las notas y comentarios para cada ejercicio.
     
     Parameters:
-        diccionario_resultados (dict): Diccionario con los datos del notebook preprocesado.
+        diccionario_enunciados (dict): Diccionario con los enunciados de los ejercicios preprocesados.
+        diccionario_resultados (dict): Diccionario con los datos del notebook preprocesado (código de los ejercicios).
         prompt_file (str): Ruta del archivo de texto que contiene el prompt.
 
     Returns:
@@ -218,13 +230,14 @@ def evaluar_ejercicios(diccionario_resultados, prompt_file='prompt.txt'):
         prompt_template = file.read()
         
     evaluaciones = {}
-    for i, (enunciado, codigo) in enumerate(zip(diccionario_resultados['enunciados_ejercicios'], diccionario_resultados['codigo_ejercicios']), start=1):
+    
+    # Iterar sobre los enunciados y códigos de los ejercicios
+    for i, (enunciado, codigo) in enumerate(zip(diccionario_enunciados['enunciados_ejercicios'], diccionario_resultados['codigo_ejercicios']), start=1):
         # Llamar a la función que evalúa con ChatGPT pasando el prompt template
         resultado = evaluar_con_chatgpt(codigo, enunciado, prompt_template)
         evaluaciones[f'Ejercicio {i}'] = resultado
     
     return evaluaciones
-
 
 def extraer_resultados(resultado):
     """
@@ -383,9 +396,9 @@ class PDF(FPDF):
             self.set_font('Arial', '', 12)
             self.multi_cell(0, 10, contenido['comentario_general'][0])
             self.ln(10)
-            
-            
-         # Función para crear el PDF
+
+
+# Función para crear el PDF
 def create_pdf(file_path, student_name, contexto_examen, enunciados, ejercicios, criterios):
     """
     Crea un archivo PDF con la evaluación del estudiante.
@@ -434,14 +447,12 @@ def create_pdf(file_path, student_name, contexto_examen, enunciados, ejercicios,
     # Guardar el PDF con el nombre del estudiante
     pdf.output(file_path)
     
-    
-def generar_pdfs_para_estudiantes(directorio_examen, archivo_examen, directorio_reports, resultados):
+def generar_pdfs_para_estudiantes(examen_preprocesado, directorio_reports, resultados):
     """
     Genera archivos PDF de evaluación para cada estudiante basado en los resultados del examen.
 
     Parámetros:
-    directorio_examen (str): Ruta al directorio donde se encuentra el archivo del examen.
-    archivo_examen (str): Nombre del archivo del examen.
+    examen_preprocesado (dict): Diccionario con los datos del examen preprocesado que incluye el contexto y los enunciados de los ejercicios.
     directorio_reports (str): Ruta al directorio donde se guardarán los archivos PDF generados.
     resultados (dict): Diccionario que contiene las evaluaciones de los estudiantes. La estructura del diccionario es:
         {
@@ -463,15 +474,10 @@ def generar_pdfs_para_estudiantes(directorio_examen, archivo_examen, directorio_
     - Las funciones `preprocesa_notebook` y `create_pdf` deben estar definidas previamente.
 
     Procedimiento:
-    1. Preprocesa el archivo del examen para extraer el contexto y los enunciados de los ejercicios.
-    2. Crea el directorio para guardar los archivos PDF si no existe.
-    3. Para cada estudiante en los resultados, genera un archivo PDF con las evaluaciones y comentarios.
+    1. Crea el directorio para guardar los archivos PDF si no existe.
+    2. Para cada estudiante en los resultados, genera un archivo PDF con las evaluaciones y comentarios.
     """
-    
-    # Preprocesar el archivo de examen
-    file_path = os.path.join(directorio_examen, archivo_examen)
-    examen_preprocesado = preprocesa_notebook(file_path)
-    
+
     # Crear directorio para guardar los PDFs
     if not os.path.exists(directorio_reports):
         os.makedirs(directorio_reports)
@@ -481,8 +487,8 @@ def generar_pdfs_para_estudiantes(directorio_examen, archivo_examen, directorio_
         if student_name != 'criterios':  # Ignorar la clave de criterios
             file_path = os.path.join(directorio_reports, f'{student_name}.pdf')
             create_pdf(file_path, student_name, examen_preprocesado['contexto_examen'], examen_preprocesado['enunciados_ejercicios'], ejercicios, resultados['criterios'])
-
-
+    
+    
 def generar_excel_resultados(resultados, filename='resultados_evaluacion.xlsx'):
     filas = []
 
@@ -504,46 +510,102 @@ def generar_excel_resultados(resultados, filename='resultados_evaluacion.xlsx'):
 
     df = pd.DataFrame(filas)
     df.to_excel(filename, index=False)
-    print(f"Archivo Excel '{filename}' generado con éxito.")
     
     
-
-def main(directorio_raiz):
-    # Construir las rutas basadas en el directorio raíz
-    directorio_entregas = os.path.join(directorio_raiz, 'entregas')
-    prompt_file = os.path.join(directorio_raiz, 'prompt.txt')
-    directorio_examen = os.path.join(directorio_raiz, "examenes")
-    directorio_reports = os.path.join(directorio_raiz, "reports")
-    fichero_res = 'resultados_evaluacion.xlsx'
-
-    # Listar los notebooks entregados por los alumnos
-    alumnos, ficheros = listar_notebooks(directorio_entregas)
-
-    # Extraer los criterios de evaluación del prompt
-    criterios = extrae_criterios(prompt_file)
-
-    # Inicializar el diccionario de resultados
-    resultados = {}
-    resultados['criterios'] = criterios
-
-    # Procesar y evaluar cada notebook
-    for indice, fich in enumerate(ficheros):
-        nb_preprocesado = preprocesa_notebook(os.path.join(directorio_entregas, fich))
-        res_eval_tmp = evaluar_ejercicios(nb_preprocesado, prompt_file=prompt_file)
+def evaluar_notebook(fich, directorio_entregas, examen_procesado, prompt_file):
+    """
+    Procesa y evalúa un notebook de un alumno.
+    
+    Parameters:
+        fich (str): Nombre del archivo del notebook del alumno.
+        directorio_entregas (str): Ruta del directorio de entregas.
+        examen_procesado (dict): Datos preprocesados del examen.
+        prompt_file (str): Ruta del archivo de texto que contiene el prompt.
+    
+    Returns:
+        tuple: Nombre del alumno y resultado de la evaluación extraída.
+    """
+    try:
+        nb_preprocesado = preprocesa_respuesta_alumno(os.path.join(directorio_entregas, fich))
+        res_eval_tmp = evaluar_ejercicios(examen_procesado, nb_preprocesado, prompt_file=prompt_file)
         res_extraido = extraer_resultados(res_eval_tmp)
-        resultados[alumnos[indice]] = res_extraido
-        
-    # Generar los informes en PDF para cada estudiante
-    generar_pdfs_para_estudiantes(directorio_examen, 'examen.ipynb', directorio_reports, resultados)
+        alumno, _ = os.path.splitext(fich)
+        return alumno, res_extraido
+    except Exception as e:
+        print(f"Error procesando el notebook {fich}: {e}", file=sys.stderr)
+        return None
 
-    # Generar el archivo Excel con los resultados de la evaluación
-    generar_excel_resultados(resultados, filename=os.path.join(directorio_reports, fichero_res))
+def main(directorio_raiz, nombre_fich_examen):
+    """
+    Función principal para evaluar los notebooks entregados por los estudiantes.
+    
+    Parameters:
+        directorio_raiz (str): Ruta del directorio raíz que contiene los subdirectorios y archivos necesarios.
+        nombre_fich_examen (str): Nombre del archivo del examen.
+    """
+    try:
+        # Construir las rutas basadas en el directorio raíz
+        directorio_entregas = os.path.join(directorio_raiz, "entregas")
+        prompt_file = os.path.join(directorio_raiz, 'prompt.txt')
+        directorio_examen = os.path.join(directorio_raiz, "examenes")
+        directorio_reports = os.path.join(directorio_raiz, "reports")
+        fichero_res = 'resultados_evaluacion.xlsx'
+        fichero_examen = os.path.join(directorio_examen, nombre_fich_examen)
+
+        # Preprocesar el examen
+        if not os.path.exists(fichero_examen):
+            raise FileNotFoundError(f"El archivo de examen {fichero_examen} no existe.")
+        examen_procesado = preprocesa_examen(fichero_examen)
+
+        # Listar los notebooks entregados por los alumnos
+        if not os.path.exists(directorio_entregas):
+            raise FileNotFoundError(f"El directorio de entregas {directorio_entregas} no existe.")
+        alumnos, ficheros = listar_notebooks(directorio_entregas)
+        if not ficheros:
+            raise FileNotFoundError("No se encontraron notebooks de alumnos en el directorio de entregas.")
+
+        # Extraer los criterios de evaluación del prompt
+        if not os.path.exists(prompt_file):
+            raise FileNotFoundError(f"El archivo de prompt {prompt_file} no existe.")
+        criterios = extrae_criterios(prompt_file)
+
+        # Inicializar el diccionario de resultados
+        resultados = {}
+        resultados['criterios'] = criterios
+
+        # Procesar y evaluar cada notebook en paralelo
+        resultados_alumnos = Parallel(n_jobs=-1)(
+            delayed(evaluar_notebook)(fich, directorio_entregas, examen_procesado, prompt_file) 
+            for fich in tqdm(ficheros, desc="Procesando notebooks")
+        )
+
+        # Filtrar resultados exitosos y agregar al diccionario de resultados
+        for result in resultados_alumnos:
+            if result is not None:
+                alumno, res_extraido = result
+                resultados[alumno] = res_extraido
+
+        # Generar los informes en PDF para cada estudiante
+        generar_pdfs_para_estudiantes(examen_procesado, directorio_reports, resultados)
+
+        # Generar el archivo Excel con los resultados de la evaluación
+        generar_excel_resultados(resultados, filename=os.path.join(directorio_reports, fichero_res))
+        
+        print("Proceso completado con éxito.")
+
+    except Exception as e:
+        print(f"Error en el proceso: {e}", file=sys.stderr)
+
+
+##################################################################################
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Evaluar notebooks de Python.')
     parser.add_argument('-dir', '--directorio_raiz', type=str, required=True, help='Directorio raíz que contiene los subdirectorios y archivos necesarios')
+    parser.add_argument('-ex', '--nombre_fich_examen', type=str, required=True, help='Nombre del archivo del examen')
 
     args = parser.parse_args()
 
-    main(args.directorio_raiz)
+    main(args.directorio_raiz, args.nombre_fich_examen)
+
 
