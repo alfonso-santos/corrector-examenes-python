@@ -1,0 +1,22 @@
+# Ignorar todo el contenido de los directorios
+/examenes/*
+/entregas/*
+/reports/*
+
+# Asegurarse de que el directorio en sí esté incluido
+!/examenes/
+!/entregas/
+!/reports/
+
+/examenes/*
+!/examenes/.gitkeep
+
+/entregas/*
+!/entregas/.gitkeep
+
+/reports/*
+!/reports/.gitkeep
+
+# Ignorar los ficheros de configuración
+.env
+.devcontainer
