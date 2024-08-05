@@ -185,7 +185,7 @@ def evaluar_ejecucion_ejercicios(datos_ejercicios):
     
     return datos_ejercicios_con_resultados    
     
-def evaluar_con_chatgpt(codigo, descripcion, prompt_template):
+def evaluar_con_chatgpt(contexto, codigo, descripcion, prompt_template):
     """
     Evalúa el código de un ejercicio utilizando el modelo GPT-4 de OpenAI.
 
@@ -198,7 +198,7 @@ def evaluar_con_chatgpt(codigo, descripcion, prompt_template):
         dict: Un diccionario con la puntuación y comentario del ejercicio.
     """
     # Insertar los valores en el prompt
-    prompt = prompt_template.format(descripcion=descripcion, codigo=codigo)
+    prompt = prompt_template.format(contexto=contexto, descripcion=descripcion, codigo=codigo)
 
     cliente = OpenAI()
     response = cliente.chat.completions.create(
@@ -234,7 +234,7 @@ def evaluar_ejercicios(diccionario_enunciados, diccionario_resultados, prompt_fi
     # Iterar sobre los enunciados y códigos de los ejercicios
     for i, (enunciado, codigo) in enumerate(zip(diccionario_enunciados['enunciados_ejercicios'], diccionario_resultados['codigo_ejercicios']), start=1):
         # Llamar a la función que evalúa con ChatGPT pasando el prompt template
-        resultado = evaluar_con_chatgpt(codigo, enunciado, prompt_template)
+        resultado = evaluar_con_chatgpt(diccionario_enunciados['contexto_examen'], codigo, enunciado, prompt_template)
         evaluaciones[f'Ejercicio {i}'] = resultado
     
     return evaluaciones
