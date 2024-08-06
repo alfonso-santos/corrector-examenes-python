@@ -2,11 +2,13 @@
 /examenes/*
 /entregas/*
 /reports/*
+/logs/*
 
 # Asegurarse de que el directorio en sí esté incluido
 !/examenes/
 !/entregas/
 !/reports/
+!/logs/
 
 /examenes/*
 !/examenes/.gitkeep
