@@ -17,6 +17,7 @@ from tqdm import tqdm
 import sys
 from joblib import Parallel, delayed
 import argparse
+import logging
 
 
 # Cargar las variables de entorno desde el archivo .env
@@ -185,35 +186,63 @@ def evaluar_ejecucion_ejercicios(datos_ejercicios):
     
     return datos_ejercicios_con_resultados    
     
-def evaluar_con_chatgpt(contexto, codigo, descripcion, prompt_template):
+def evaluar_con_chatgpt(contexto, codigo, descripcion, prompt_template, dir_log):
     """
     Evalúa el código de un ejercicio utilizando el modelo GPT-4 de OpenAI.
 
     Parameters:
+        contexto (str): El contexto del examen.
         codigo (str): El código del ejercicio a evaluar.
         descripcion (str): Una descripción del ejercicio.
         prompt_template (str): El template del prompt con marcadores para la descripción y el código.
+        dir_log (str): El directorio donde se guardará el archivo de log.
 
     Returns:
         dict: Un diccionario con la puntuación y comentario del ejercicio.
     """
+    # Configurar el logging
+    log_file = os.path.join(dir_log, 'resultados.log')
+    if not os.path.exists(dir_log):
+        os.makedirs(dir_log)
+    logging.basicConfig(filename=log_file, level=logging.WARNING, 
+                        format='%(asctime)s:%(levelname)s:%(message)s')
+
     # Insertar los valores en el prompt
     prompt = prompt_template.format(contexto=contexto, descripcion=descripcion, codigo=codigo)
 
-    cliente = OpenAI()
-    response = cliente.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You are a programming teaching assistant evaluating student code."},
-            {"role": "user", "content": prompt}
-        ]
-    )
+    try:
+        cliente = OpenAI()
+        response = cliente.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a programming teaching assistant evaluating student code."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+    except RateLimitError as e:
+        error_msg = f"Rate limit error: {e}"
+        logging.error(error_msg)
+        return {"error": error_msg}
+    except OpenAIError as e:
+        error_msg = f"OpenAI API error: {e}"
+        logging.error(error_msg)
+        return {"error": error_msg}
+    except Exception as e:
+        error_msg = f"General error: {e}"
+        logging.error(error_msg)
+        return {"error": error_msg}
 
     # Extraer la respuesta de ChatGPT
-    evaluacion = response.choices[0].message.content
+    try:
+        evaluacion = response.choices[0].message.content
+    except (KeyError, IndexError) as e:
+        error_msg = f"Error al procesar la respuesta de la API: {e}"
+        logging.error(error_msg)
+        return {"error": error_msg}
+
     return evaluacion
 
-def evaluar_ejercicios(diccionario_enunciados, diccionario_resultados, prompt_file='prompt.txt'):
+def evaluar_ejercicios(diccionario_enunciados, diccionario_resultados, dir_log, prompt_file='prompt.txt'):
     """
     Evalúa los ejercicios utilizando GPT-4 y devuelve las notas y comentarios para cada ejercicio.
     
@@ -234,59 +263,96 @@ def evaluar_ejercicios(diccionario_enunciados, diccionario_resultados, prompt_fi
     # Iterar sobre los enunciados y códigos de los ejercicios
     for i, (enunciado, codigo) in enumerate(zip(diccionario_enunciados['enunciados_ejercicios'], diccionario_resultados['codigo_ejercicios']), start=1):
         # Llamar a la función que evalúa con ChatGPT pasando el prompt template
-        resultado = evaluar_con_chatgpt(diccionario_enunciados['contexto_examen'], codigo, enunciado, prompt_template)
+        resultado = evaluar_con_chatgpt(diccionario_enunciados['contexto_examen'], codigo, enunciado, prompt_template, dir_log)
         evaluaciones[f'Ejercicio {i}'] = resultado
     
     return evaluaciones
 
-def extraer_resultados(resultado):
+def extraer_resultados(resultado, nombre_alumno, criterios, dir_log):
     """
     Extrae las puntuaciones, comentarios y comentarios generales de un diccionario de resultados.
 
     Parámetros:
     resultado (dict): Diccionario que contiene los resultados en forma de texto.
+    nombre_alumno (str): Nombre del alumno.
+    ejercicio (str): Nombre del ejercicio.
+    criterios (list): Lista de criterios de evaluación.
 
     Retorna:
     dict: Un diccionario con las claves originales y sus correspondientes listas de puntuaciones, comentarios y comentarios generales.
     """
+    # Configurar el logger
+    log_file = os.path.join(dir_log, 'resultados.log')
+    if not os.path.exists(dir_log):
+        os.makedirs(dir_log)
+    logging.basicConfig(filename=log_file, level=logging.WARNING, 
+                        format='%(asctime)s:%(levelname)s:%(message)s')
+
     # Inicializar el diccionario para almacenar los resultados
     res = {}
-    
+
     # Recorrer cada elemento del diccionario 'resultado'
     for key, value in resultado.items():
-        # Buscar el patrón para las puntuaciones usando una expresión regular
-        puntuaciones_pattern = re.search(r'A\.\s\*\*Puntuaciones\*\*:\s(\[.*?\])', value)
-        # Buscar el patrón para los comentarios usando una expresión regular
-        comentarios_pattern = re.search(r'B\.\s\*\*Comentarios\*\*:\s(.*?)C\.\s\*\*Comentario General\*\*:', value, re.DOTALL)
-        # Buscar el patrón para el comentario general usando una expresión regular
-        comentario_general_pattern = re.search(r'C\.\s\*\*Comentario General\*\*:\s(.*)', value, re.DOTALL)
-        
-        # Si se encuentra el patrón de puntuaciones, evalúa la cadena como una lista
-        if puntuaciones_pattern:
-            puntuaciones = eval(puntuaciones_pattern.group(1))
-        else:
-            puntuaciones = []
+        try:
+            # Buscar el patrón para las puntuaciones usando una expresión regular
+            puntuaciones_pattern = re.search(r'A\.\s\*\*Puntuaciones\*\*:\s(\[.*?\])', value)
+            # Buscar el patrón para los comentarios usando una expresión regular
+            comentarios_pattern = re.search(r'B\.\s\*\*Comentarios\*\*:\s(.*?)C\.\s\*\*Comentario General\*\*:', value, re.DOTALL)
+            # Buscar el patrón para el comentario general usando una expresión regular
+            comentario_general_pattern = re.search(r'C\.\s\*\*Comentario General\*\*:\s(.*)', value, re.DOTALL)
+            
+            # Si se encuentra el patrón de puntuaciones, evalúa la cadena como una lista
+            if puntuaciones_pattern:
+                puntuaciones = eval(puntuaciones_pattern.group(1))
+            else:
+                puntuaciones = []
 
-        # Si se encuentra el patrón de comentarios, evalúa la cadena como una lista
-        if comentarios_pattern:
-            comentarios_text = comentarios_pattern.group(1).strip()
-            # Encuentra todos los comentarios dentro del texto de comentarios
-            comentarios = re.findall(r'"\s*(.*?)\s*"', comentarios_text, re.DOTALL)
-        else:
-            comentarios = []
+            # Si se encuentra el patrón de comentarios, evalúa la cadena como una lista
+            if comentarios_pattern:
+                comentarios_text = comentarios_pattern.group(1).strip()
+                # Encuentra todos los comentarios dentro del texto de comentarios
+                comentarios = re.findall(r'"\s*(.*?)\s*"', comentarios_text, re.DOTALL)
+            else:
+                comentarios = []
 
-        # Si se encuentra el patrón de comentario general, evalúa la cadena como una lista
-        if comentario_general_pattern:
-            comentario_general = eval(comentario_general_pattern.group(1).strip())
-        else:
-            comentario_general = []
+            # Si se encuentra el patrón de comentario general, evalúa la cadena como una lista
+            if comentario_general_pattern:
+                comentario_general = eval(comentario_general_pattern.group(1).strip())
+            else:
+                comentario_general = []
 
-        # Añadir el resultado al diccionario 'res' para la clave actual
-        res[key] = {
-            'puntuaciones': puntuaciones,
-            'comentarios': comentarios,
-            'comentario_general': comentario_general
-        }
+            # Verificar que las listas de criterios y puntuaciones tienen la misma longitud
+            if len(criterios) != len(puntuaciones):
+                error_msg = f"Error: La longitud de los criterios ({len(criterios)}) y las puntuaciones ({len(puntuaciones)}) no coinciden para '{nombre_alumno}' en el ejercicio '{key}'."
+                logging.error(error_msg)
+                raise ValueError(error_msg)
+
+            # Verificar que las listas de puntuaciones y comentarios tienen la misma longitud
+            if len(puntuaciones) != len(comentarios):
+                warning_msg = f"Warning: La longitud de las puntuaciones y los comentarios no coincide para '{nombre_alumno}' en el ejercicio '{key}'."
+                logging.warning(warning_msg)
+                
+                if len(comentarios) < len(puntuaciones):
+                    # Añadir "Sin comentarios" hasta que las listas tengan la misma longitud
+                    while len(comentarios) < len(puntuaciones):
+                        comentarios.append("Sin comentarios")
+                    warning_msg += f" Se añadieron 'Sin comentarios' para equilibrar las listas."
+                elif len(comentarios) > len(puntuaciones):
+                    # Acortar la lista de comentarios
+                    comentarios = comentarios[:len(puntuaciones)]
+                    warning_msg += f" Se acortaron los comentarios para equilibrar las listas."
+
+                logging.warning(warning_msg)
+
+            # Añadir el resultado al diccionario 'res' para la clave actual
+            res[key] = {
+                'puntuaciones': puntuaciones,
+                'comentarios': comentarios,
+                'comentario_general': comentario_general
+            }
+        except Exception as e:
+            error_msg = f"Error procesando los resultados para '{nombre_alumno}' en el ejercicio '{ejercicio}': {e}"
+            logging.error(error_msg)
 
     return res
 
@@ -512,7 +578,7 @@ def generar_excel_resultados(resultados, filename='resultados_evaluacion.xlsx'):
     df.to_excel(filename, index=False)
     
     
-def evaluar_notebook(fich, directorio_entregas, examen_procesado, prompt_file):
+def evaluar_notebook(fich, directorio_entregas, examen_procesado, prompt_file, criterios, dir_log):
     """
     Procesa y evalúa un notebook de un alumno.
     
@@ -526,10 +592,10 @@ def evaluar_notebook(fich, directorio_entregas, examen_procesado, prompt_file):
         tuple: Nombre del alumno y resultado de la evaluación extraída.
     """
     try:
-        nb_preprocesado = preprocesa_respuesta_alumno(os.path.join(directorio_entregas, fich))
-        res_eval_tmp = evaluar_ejercicios(examen_procesado, nb_preprocesado, prompt_file=prompt_file)
-        res_extraido = extraer_resultados(res_eval_tmp)
         alumno, _ = os.path.splitext(fich)
+        nb_preprocesado = preprocesa_respuesta_alumno(os.path.join(directorio_entregas, fich))
+        res_eval_tmp = evaluar_ejercicios(examen_procesado, nb_preprocesado, dir_log, prompt_file=prompt_file)
+        res_extraido = extraer_resultados(res_eval_tmp, alumno, criterios, dir_log)
         return alumno, res_extraido
     except Exception as e:
         print(f"Error procesando el notebook {fich}: {e}", file=sys.stderr)
@@ -546,6 +612,7 @@ def main(directorio_raiz, nombre_fich_examen):
     try:
         # Construir las rutas basadas en el directorio raíz
         directorio_entregas = os.path.join(directorio_raiz, "entregas")
+        dir_log = os.path.join(directorio_raiz, "logs")
         prompt_file = os.path.join(directorio_raiz, 'prompt.txt')
         directorio_examen = os.path.join(directorio_raiz, "examenes")
         directorio_reports = os.path.join(directorio_raiz, "reports")
@@ -556,7 +623,7 @@ def main(directorio_raiz, nombre_fich_examen):
         if not os.path.exists(fichero_examen):
             raise FileNotFoundError(f"El archivo de examen {fichero_examen} no existe.")
         examen_procesado = preprocesa_examen(fichero_examen)
-
+        
         # Listar los notebooks entregados por los alumnos
         if not os.path.exists(directorio_entregas):
             raise FileNotFoundError(f"El directorio de entregas {directorio_entregas} no existe.")
@@ -572,10 +639,11 @@ def main(directorio_raiz, nombre_fich_examen):
         # Inicializar el diccionario de resultados
         resultados = {}
         resultados['criterios'] = criterios
-
+        
+               
         # Procesar y evaluar cada notebook en paralelo
         resultados_alumnos = Parallel(n_jobs=-1)(
-            delayed(evaluar_notebook)(fich, directorio_entregas, examen_procesado, prompt_file) 
+            delayed(evaluar_notebook)(fich, directorio_entregas, examen_procesado, prompt_file, criterios, dir_log) 
             for fich in tqdm(ficheros, desc="Procesando notebooks")
         )
 
@@ -584,11 +652,11 @@ def main(directorio_raiz, nombre_fich_examen):
             if result is not None:
                 alumno, res_extraido = result
                 resultados[alumno] = res_extraido
-
+    
         # Generar los informes en PDF para cada estudiante
         generar_pdfs_para_estudiantes(examen_procesado, directorio_reports, resultados)
-
-        # Generar el archivo Excel con los resultados de la evaluación
+        
+         # Generar el archivo Excel con los resultados de la evaluación
         generar_excel_resultados(resultados, filename=os.path.join(directorio_reports, fichero_res))
         
         print("Proceso completado con éxito.")
