@@ -1,0 +1,79 @@
+1. @@eficiencia@@
+Descripción: El código debe ser eficiente en términos de tiempo y recursos. Esto incluye el uso adecuado de estructuras de datos y algoritmos para minimizar la complejidad y el tiempo de ejecución.
+Ejemplo: Si el estudiante utiliza una solución eficiente que minimiza el tiempo de ejecución y el uso de recursos, se debe comentar positivamente. Si el código es ineficiente y podría mejorarse, se debe sugerir optimizaciones.
+
+2. @@cumplimiento@@
+Descripción: El código debe cumplir con las instrucciones dadas en el enunciado del ejercicio. Se debe verificar que todas las especificaciones y requisitos han sido satisfechos.
+Ejemplo: Si el estudiante sigue todas las instrucciones del ejercicio y cumple con los requisitos, se debe comentar positivamente. Si omite alguna parte importante de las instrucciones, se debe señalar y sugerir correcciones.
+
+3. @@nombres_variables@@
+Descripción: Se espera que los estudiantes utilicen nombres de variables que sean descriptivos y significativos. Un buen nombre de variable debe reflejar claramente el propósito o el contenido de la variable, facilitando la legibilidad del código.
+Ejemplo: Si un estudiante usa precio_producto en lugar de pp, se debe comentar positivamente. Si usa nombres como x o y para variables importantes, se debe sugerir usar nombres más descriptivos.
+
+4. @@uso_listas@@
+Descripción: Los estudiantes deben demostrar su capacidad para crear, manipular y utilizar listas de manera efectiva. Esto incluye agregar, eliminar y acceder a elementos de la lista.
+Ejemplo: Si un estudiante utiliza correctamente una lista para almacenar precios de productos y accede a ellos usando un bucle, se debe comentar positivamente. Si no usa listas donde sería apropiado, se debe sugerir su uso. Si el ejercicio no requiere listas, omitir este criterio en la evaluación.
+
+5. @@bucles@@
+Descripción: Se espera que los estudiantes utilicen bucles for y while para iterar sobre listas y otras estructuras de datos. Los bucles deben ser usados para realizar tareas repetitivas de manera eficiente.
+Ejemplo: Si un estudiante usa un bucle for para sumar todos los elementos de una lista, se debe comentar positivamente. Si usa un bucle innecesariamente complejo o no utiliza un bucle cuando sería adecuado, se debe sugerir simplificar o corregir el código. Si el ejercicio no requiere bucles, omitir este criterio en la evaluación.
+
+6. @@funciones@@
+Descripción: Los estudiantes deben ser capaces de definir y utilizar funciones adecuadamente, incluyendo el paso de parámetros y el retorno de valores. Las funciones deben mejorar la modularidad y evitar la repetición de código.
+Ejemplo: Si un estudiante define una función calcular_total(precios) que toma una lista de precios y devuelve la suma total, se debe comentar positivamente. Si el código contiene repetición de lógica que podría estar en una función, se debe sugerir la creación de funciones para mejorar la estructura del código.
+
+7. @@comentarios@@
+Descripción: Se espera que los estudiantes incluyan comentarios útiles y relevantes en su código para explicar partes complejas o importantes. Los comentarios deben ayudar a otros a entender el propósito y funcionamiento del código.
+Ejemplo: Si un estudiante comenta el propósito de una función o el uso de un bucle, se debe comentar positivamente. Si el código carece de comentarios o los comentarios son confusos, se debe sugerir mejorar los comentarios.
+
+8. @@estructura@@
+Descripción: El código debe estar bien estructurado y organizado, con una clara separación de las distintas partes del programa. La indentación y el formato deben seguir las convenciones estándar de Python.
+Ejemplo: Si el código está bien organizado y sigue una estructura clara, se debe comentar positivamente. Si el código está desordenado o mal indentado, se debe sugerir mejorar la estructura y el formato.
+
+9. @@claridad@@
+Descripción: El código debe ser claro y fácil de entender. Esto incluye el uso de nombres significativos para variables y funciones, una estructura lógica, y la ausencia de complejidad innecesaria.
+Ejemplo: Si el código es fácil de seguir y entender, se debe comentar positivamente. Si el código es confuso o difícil de seguir, se debe sugerir simplificar y mejorar la claridad.
+
+10. @@manejo_errores@@
+Descripción: Se espera que los estudiantes manejen posibles errores y excepciones en su código para asegurar que funcione de manera robusta. El código debe anticipar posibles fallos y manejar las excepciones de manera adecuada.
+Ejemplo: Si un estudiante usa bloques try y except para manejar errores potenciales, se debe comentar positivamente. Si el código no maneja errores y puede fallar fácilmente, se debe sugerir agregar manejo de errores.
+
+11. @@uso_bibliotecas_financieras@@
+Descripción: El estudiante debe utilizar bibliotecas financieras estándar, como `pandas`, `numpy`, o `yfinance`, para realizar cálculos financieros y obtener datos del mercado.
+Ejemplo: Si un estudiante usa `pandas` para manipular datos de un DataFrame financiero, se debe comentar positivamente. Si no utiliza bibliotecas adecuadas, se debe sugerir su uso.
+
+12. @@análisis_datos@@
+Descripción: El código debe incluir análisis adecuado de los datos financieros, como cálculos de media, varianza, desviación estándar, o correlación, cuando sea necesario.
+Ejemplo: Si el estudiante realiza correctamente un análisis de la correlación entre dos activos financieros, se debe comentar positivamente. Si el análisis es incorrecto o insuficiente, se debe sugerir mejoras.
+
+13. @@visualizacion_datos@@
+Descripción: Se espera que el estudiante utilice herramientas de visualización, como `matplotlib` o `seaborn`, para representar gráficamente los datos financieros de manera clara y significativa.
+Ejemplo: Si el estudiante genera gráficos claros y precisos que ayudan a visualizar la tendencia de precios o la distribución de datos financieros, se debe comentar positivamente. Si la visualización es confusa o faltante, se debe sugerir mejorarla.
+
+14. @@gestion_datos@@
+Descripción: El código debe manejar adecuadamente la obtención, limpieza y preparación de datos financieros para su análisis posterior.
+Ejemplo: Si el estudiante descarga datos financieros y los procesa correctamente para su análisis, se debe comentar positivamente. Si los datos no se manejan correctamente, se debe señalar el problema y sugerir correcciones.
+
+15. @@modelos_financieros@@
+Descripción: El código debe implementar modelos financieros básicos como el cálculo de retornos, volatilidad, o valor en riesgo (VaR) de manera correcta y eficiente.
+Ejemplo: Si el estudiante implementa correctamente un modelo para calcular el VaR de una cartera, se debe comentar positivamente. Si el modelo es incorrecto o ineficiente, se debe sugerir mejoras.
+
+16. @@optimizacion_portafolio@@
+Descripción: Se espera que el estudiante aplique métodos de optimización de portafolio, como el modelo de Markowitz, para seleccionar una combinación óptima de activos.
+Ejemplo: Si el estudiante usa correctamente `numpy` o `scipy` para optimizar un portafolio basado en la media y varianza, se debe comentar positivamente. Si el enfoque es incorrecto o no se aplica la optimización cuando es apropiado, se debe sugerir correcciones.
+
+17.  @@descarga_de_datos@@
+Descripción: El estudiante debe utilizar correctamente la librería yfinance u otra similar para descargar los datos históricos necesarios para realizar los cálculos.
+Ejemplo: Si el estudiante usa yf.download('AAPL', start='2022-01-01', end='2023-01-01') para descargar los datos de AAPL, se debe comentar positivamente. Si hay problemas en la selección de fechas o símbolos incorrectos, se debe sugerir correcciones.
+
+18. @@calculo_correcto@@
+Descripción: El estudiante debe realizar el cálculo solicitado de manera precisa y utilizando métodos apropiados.
+Ejemplo: Si el estudiante calcula correctamente el promedio móvil de 50 días utilizando rolling(window=50).mean(), se debe comentar positivamente. Si se utiliza un método incorrecto o se aplica una ventana incorrecta, se debe sugerir correcciones.
+
+19. @@manipulacion_dataframe@@
+Descripción: El estudiante debe manipular el DataFrame de manera eficiente para realizar cálculos y extraer la información necesaria.
+Ejemplo: Si el estudiante manipula correctamente el DataFrame datos para calcular la media móvil y añadirla como una nueva columna, se debe comentar positivamente. Si el DataFrame se manipula de manera incorrecta o ineficiente, se debe sugerir correcciones.
+
+20. @@grafica@@
+Descripción: La gráfica generada debe ser clara y debe contener los elementos visuales necesarios para interpretar correctamente los datos, como etiquetas de ejes y leyendas.
+Ejemplo: Si el estudiante crea una gráfica que muestra claramente el precio de cierre y el promedio móvil, con títulos y etiquetas correctamente definidos, se debe comentar positivamente. Si la gráfica carece de claridad o de elementos esenciales como etiquetas, se debe sugerir correcciones.

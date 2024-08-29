@@ -3,6 +3,7 @@
 /entregas/*
 /reports/*
 /logs/*
+/pruebas
 
 # Asegurarse de que el directorio en sí esté incluido
 !/examenes/

@@ -1,0 +1,55 @@
+@@claridad@@
+Descripción:
+El código debe ser claro y fácil de entender, con una estructura y formato que facilite su lectura y mantenimiento.
+Ejemplo:
+Uso adecuado de indentación, nombres de variables descriptivos y separación lógica de bloques de código.
+
+@@eficiencia_basica@@
+Descripción:
+El código debe evitar operaciones innecesariamente costosas en términos de tiempo de ejecución, usando estructuras de datos y métodos adecuados para la tarea.
+Ejemplo:
+Uso de bucles para iterar sobre listas en lugar de replicar manualmente operaciones repetitivas.
+
+@@uso_bucles@@
+Descripción:
+El estudiante debe usar bucles y estructuras de control adecuadas para manejar la repetición de tareas o tomar decisiones lógicas en el código.
+Ejemplo:
+Uso de un bucle `for` para iterar sobre una lista de datos en lugar de escribir cada operación por separado.
+
+@@reutilizacion@@
+Descripción:
+El código debe estar escrito de manera que permita la reutilización de funciones y bloques de código, evitando la repetición innecesaria.
+Ejemplo:
+Definición de funciones para tareas repetitivas en lugar de duplicar el mismo código en múltiples partes del script.
+
+@@manejo_errores_basico@@
+Descripción:
+El código debe manejar correctamente los errores comunes, evitando que el programa se bloquee en situaciones predecibles.
+Ejemplo:
+Uso de `try-except` para manejar posibles errores de tipo, como dividir por cero o acceder a un índice fuera de rango.
+
+@@uso_funciones@@
+Descripción:
+El estudiante debe hacer uso correcto de funciones para encapsular lógica y operaciones, facilitando la reutilización y la claridad del código.
+Ejemplo:
+Definición y uso de funciones para operaciones repetitivas o para dividir el código en partes más manejables.
+
+@@gestion_analisis_datos@@
+Descripción: El estudiante debe ser capaz de gestionar y analizar datos de manera efectiva, incluyendo la limpieza, transformación y análisis de conjuntos de datos.
+Ejemplo: Uso de pandas para cargar un DataFrame, eliminar valores nulos y calcular estadísticas descriptivas como la media y la desviación estándar.
+
+@@visualizacion_grafica@@
+Descripción: El código debe generar gráficos y visualizaciones que sean claros, bien etiquetados y que comuniquen de manera efectiva la información.
+Ejemplo: Creación de un gráfico de líneas que muestre la evolución del precio de una acción a lo largo del tiempo, con etiquetas en los ejes y un título descriptivo.
+
+@@manipulacion_dataframe@@
+Descripción: El estudiante debe ser capaz de manipular eficientemente DataFrames para extraer, transformar y analizar datos.
+Ejemplo: Uso de pandas para filtrar filas, seleccionar columnas específicas, agregar datos y realizar operaciones de agrupación sobre un DataFrame.
+
+@@descarga_de_datos@@
+Descripción: El código debe ser capaz de descargar datos de fuentes en línea o leer datos de archivos de manera eficiente, incluyendo la correcta configuración de índices, fechas y otros parámetros relevantes.
+Ejemplo: Uso de yfinance para descargar datos históricos de acciones, o lectura de un archivo CSV con pandas, especificando la columna de fechas como índice y manejando correctamente el formato de las fechas.
+
+@@interpretacion_resultados@@
+Descripción: El estudiante debe ser capaz de interpretar correctamente los resultados obtenidos y proporcionar explicaciones claras sobre lo que significan en el contexto financiero.
+Ejemplo: Después de calcular la media móvil de una acción, el estudiante explica cómo la media móvil refleja las tendencias de precios y cómo podría influir en las decisiones de inversión.

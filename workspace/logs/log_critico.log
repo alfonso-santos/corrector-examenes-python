@@ -1,0 +1,2 @@
+2024-08-27 09:32:48,458 - INFO - Inicio del proceso de evaluación.
+2024-08-27 09:32:48,459 - CRITICAL - Error inesperado en el proceso: El archivo de criterios workspace/criterios.txt no existe.

@@ -1,0 +1,140 @@
+### Errores Sintácticos
+Descripción: 
+El código contiene errores que impiden su ejecución debido a problemas de sintaxis, como paréntesis no cerrados, errores tipográficos en palabras clave, etc.
+
+Ejemplo: 
+Falta de dos puntos `:` en la definición de una función, o un paréntesis mal cerrado.
+
+Instrucciones Adicionales:
+- Introducir errores que causen que el código no se ejecute en absoluto, pero que sean relativamente fáciles de corregir si se detectan.
+- Asegurarse de que los errores no sean demasiado obvios, para que requieran cierta revisión para ser identificados.
+
+---
+
+### Errores Lógicos y de Cálculo
+Descripción: 
+El código se ejecuta sin problemas, pero produce resultados incorrectos debido a errores en la lógica o en los cálculos.
+
+Ejemplo: 
+Uso incorrecto de operadores, bucles que no iteran el número correcto de veces, errores en la lógica condicional, o cálculos incorrectos como sumar en lugar de multiplicar.
+
+Instrucciones Adicionales:
+- Mantener la estructura general del código, pero alterar la lógica o los cálculos de manera que el resultado final sea incorrecto.
+- Asegurarse de que el error sea sutil y no inmediatamente evidente al leer el código.
+
+---
+
+### Errores de Ejecución (Runtime Errors)
+Descripción: 
+El código intenta ejecutarse pero falla en tiempo de ejecución debido a problemas como divisiones por cero, índices fuera de rango, llamadas a funciones inexistentes, etc.
+
+Ejemplo: 
+Intentar acceder a un índice de lista que no existe, o realizar una operación matemática inválida como dividir por cero.
+
+Instrucciones Adicionales:
+- Introducir un error que se active solo durante la ejecución, haciendo que el código falle.
+- Evitar errores obvios al principio del código; el error debe estar oculto en alguna parte del flujo del programa.
+
+---
+
+### Errores de Importación
+Descripción: 
+El código intenta importar un módulo que no existe o se importa con un nombre incorrecto.
+
+Ejemplo: 
+`import pandas as pd` puede escribirse incorrectamente como `import pandass as pd`, lo que generaría un error.
+
+Instrucciones Adicionales:
+- El error debe estar relacionado con la importación de módulos, impidiendo que el código se ejecute correctamente.
+- Asegurarse de que el error sea lo suficientemente sutil como para que no se detecte de inmediato.
+
+---
+
+### Errores de Configuración y Parámetros
+Descripción: 
+Errores relacionados con la configuración incorrecta de parámetros en funciones o métodos que llevan a resultados inesperados.
+
+Ejemplo: 
+Establecer una frecuencia incorrecta al descargar datos financieros, o usar un parámetro incorrecto en una función de matplotlib.
+
+Instrucciones Adicionales:
+- El código debe contener parámetros incorrectos que no generen errores de ejecución, pero que produzcan resultados incorrectos o inesperados.
+- Asegurarse de que los errores en los parámetros sean sutiles y no evidentes a primera vista.
+
+---
+
+### Errores en Gráficos y Visualización
+Descripción: 
+Los gráficos generados tienen errores, como ejes mal etiquetados, uso incorrecto de escalas, o incluso gráficos que no se generan correctamente.
+
+Ejemplo: 
+Olvidar añadir etiquetas de ejes o títulos a los gráficos.
+
+Instrucciones Adicionales:
+- El gráfico debe generarse, pero debe contener errores que hagan que la visualización sea incorrecta o confusa.
+- Asegurarse de que los errores en la visualización no sean triviales y requieran atención para ser corregidos.
+
+---
+
+### Celdas de Código Incompletas o Divididas
+Descripción: 
+El código que debería estar en una sola celda está dividido en varias celdas, o una celda está incompleta, lo que hace que el notebook no funcione correctamente en conjunto.
+
+Ejemplo: 
+Definir una función en una celda y llamarla en otra celda, pero las celdas no se ejecutan en orden, lo que genera un error de "función no definida".
+
+Instrucciones Adicionales:
+- El código debe estar dividido de manera que no funcione correctamente cuando se ejecuta en el orden natural de las celdas.
+- Asegurarse de que la división o la omisión sea sutil, de manera que no se detecte fácilmente.
+
+---
+
+### Omisión de Ejercicios
+Descripción: 
+Uno o más ejercicios están completamente omitidos en el notebook, lo que sugiere que el estudiante no los ha resuelto.
+
+Ejemplo: 
+No incluir ningún código o respuesta para un ejercicio dado.
+
+Instrucciones Adicionales:
+- Dejar uno o más ejercicios sin resolver, como si el estudiante hubiera olvidado completarlos o no hubiera tenido tiempo.
+- Asegurarse de que la omisión parezca natural, sin ninguna nota o comentario que indique que el estudiante era consciente de la omisión.
+
+---
+
+### Errores de Formato y Presentación
+Descripción: 
+El código está mal formateado, lo que dificulta su lectura y comprensión.
+
+Ejemplo: 
+Indentación incorrecta, nombres de variables confusos, falta de espaciado adecuado, etc.
+
+Instrucciones Adicionales:
+- Introducir errores en la presentación del código, como indentación incorrecta o nombres de variables poco claros.
+- Asegurarse de que el código siga siendo ejecutable, pero difícil de leer y comprender.
+
+---
+
+### Uso Ineficiente de Recursos
+Descripción: 
+El código es correcto pero se podría optimizar, ya que utiliza más recursos de los necesarios.
+
+Ejemplo: 
+Uso de bucles innecesarios, llamadas a funciones redundantes, no usar estructuras de datos adecuadas como diccionarios o listas.
+
+Instrucciones Adicionales:
+- El código debe ser funcional, pero debe contener ineficiencias que podrían mejorarse.
+- Asegurarse de que las ineficiencias no sean obvias y que el código siga funcionando, aunque no de manera óptima.
+
+---
+
+### Falta de Comentarios y Documentación
+Descripción: 
+El código se ejecuta correctamente, pero carece de la documentación adecuada o de comentarios que expliquen su funcionamiento.
+
+Ejemplo: 
+Código limpio y correcto, pero sin ninguna explicación de lo que hace, dificultando su mantenimiento.
+
+Instrucciones Adicionales:
+- El código debe estar bien escrito, pero debe carecer de cualquier comentario o documentación explicativa.
+- Asegurarse de que la falta de comentarios haga que el código sea difícil de entender para alguien que lo lea por primera vez.
